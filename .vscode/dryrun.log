@@ -1,0 +1,8 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/himanshu1805/Programming/C++/Linear_Algebra'
+g++  -Wall -g  -c main.cpp -o main.o
+g++  -Wall -g  -c matrix.cpp -o matrix.o
+g++  -Wall -g  -c shell.cpp -o shell.o
+g++  -Wall -g  main.o matrix.o shell.o -o main
+make: Leaving directory '/home/himanshu1805/Programming/C++/Linear_Algebra'
+ 
