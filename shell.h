@@ -17,6 +17,6 @@ void det(std::queue<std::string> &command);
 void copy(std::queue<std::string> &command);
 void show(std::queue<std::string> &command);
 void multiply(std::queue<std::string> &command);
-
+void quit();
 
 #endif

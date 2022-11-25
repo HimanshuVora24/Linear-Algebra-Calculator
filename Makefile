@@ -1,15 +1,19 @@
-CPP = g++ 
-CFLAGS = -Wall -g 
-CFILES = main.cpp matrix.cpp shell.cpp
+CXX = g++ 
+CXXFLAGS = -Wall -g 
+CXXFILES = main_gui.cpp matrix.cpp shell.cpp
 HFILES = matrix.h shell.h
-OFILES = main.o matrix.o shell.o
+OFILES = main_gui.o matrix.o shell.o
 OBJNAME = main
+LIBS = 
+
+CXXFLAGS += `wx-config --cxxflags`
+LIBS += `wx-config --libs`
 
 %.o: %.cpp $(HFILES)
-	$(CPP) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 main: $(OFILES)
-	@ $(CPP) $(CFLAGS) $(OFILES) -o $(OBJNAME)
+	@ $(CXX) $(OFILES) -o $(OBJNAME) $(LIBS)
 clean:
 	rm -f *.o
 	rm -f main 
