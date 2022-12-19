@@ -43,6 +43,7 @@ public:
     wxTextCtrl * rows; 
     wxTextCtrl * cols; 
     wxPanel * MatrixOpPanel;
+    wxPanel * MatrixListPanel;
     MatrixEditFrame * editFrame; 
     Matrix * mat; 
     MatrixFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
@@ -56,5 +57,11 @@ public:
     MatrixOpPanel(wxWindow * parent);   
 };
 
+class MatrixListPanel : public wxPanel {
+
+public:
+    MatrixFrame * parent;
+    MatrixListPanel(wxWindow * parent);
+};
 
 #endif

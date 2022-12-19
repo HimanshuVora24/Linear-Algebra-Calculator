@@ -24,7 +24,10 @@ bool MatrixApp::OnInit() {
 MatrixFrame::MatrixFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         : wxFrame(NULL, wxID_ANY, title, pos, size) {
     
-    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer * panelSizer = new wxBoxSizer(wxHORIZONTAL);
+    
+
+    /*wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     name = new wxTextCtrl(this, wxID_ANY, wxEmptyString);
     rows = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0L,  wxTextValidator(wxFILTER_NUMERIC));
     cols = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0L,  wxTextValidator(wxFILTER_NUMERIC));
@@ -33,7 +36,8 @@ MatrixFrame::MatrixFrame(const wxString& title, const wxPoint& pos, const wxSize
     vbox->Add(rows);
     vbox->Add(cols);
     vbox->Add(initButton);
-    this->SetSizer(vbox);
+    this->SetSizer(vbox);*/
+
     //initButton->Bind(wxEV)
     /*int h_size = 45;
     for (int i = 0; i < 3; i++) {
@@ -82,7 +86,7 @@ MatrixEditFrame::MatrixEditFrame(MatrixFrame * parent, const wxString& title, co
     for (int i = 0; i < mat_rows; i++) {
         for (int j = 0; j < mat_cols; j++) {
             inputBoxes.push_back(new wxTextCtrl(this, wxID_ANY, "0", wxPoint(i*h_size + 5 * i + 5, j*h_size + 5 * j + 5),
-             wxSize(h_size, h_size)));
+             wxSize(h_size, h_size), 0L,  wxTextValidator(wxFILTER_NUMERIC)));
         }
     }
     confirmButton = new wxButton(this, wxID_ANY, "Create", wxPoint(0, cols * h_size + 30));
