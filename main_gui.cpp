@@ -6,17 +6,19 @@
 #include "matrix.h"
 
 enum {
-    INIT_BUTTON = 1
+    INIT_BUTTON = 1,
+    SHOW_BUTTON = 2
 };
 
 wxBEGIN_EVENT_TABLE(MatrixFrame, wxFrame)
     EVT_BUTTON(INIT_BUTTON,  MatrixFrame::createEditFrame)
+    EVT_BUTTON(SHOW_BUTTON, MatrixFrame::createShowFrame)
 wxEND_EVENT_TABLE()
 
 wxIMPLEMENT_APP(MatrixApp);
 
 bool MatrixApp::OnInit() {
-    MatrixFrame *frame = new MatrixFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
+    MatrixFrame *frame = new MatrixFrame( "Hello World", wxPoint(50, 50), wxSize(640, 480) );
     frame->Show( true );
     return true;
 }
@@ -24,9 +26,124 @@ bool MatrixApp::OnInit() {
 MatrixFrame::MatrixFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         : wxFrame(NULL, wxID_ANY, title, pos, size) {
     
+    this->SetSizeHints( wxDefaultSize, wxDefaultSize );
     wxBoxSizer * panelSizer = new wxBoxSizer(wxHORIZONTAL);
+	matrixOp = new wxScrolledWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE|wxHSCROLL|wxVSCROLL );
+    matrixOp->SetScrollRate(5, 5);
     
+    matrixListPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE|wxTAB_TRAVERSAL );
 
+    wxBoxSizer * operations = new wxBoxSizer(wxVERTICAL);
+
+    wxBoxSizer * new_box = new wxBoxSizer(wxHORIZONTAL);
+    new_box->SetMinSize( wxSize( -1,40 ) );
+    new_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("New: ")), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	name = new wxTextCtrl(matrixOp, wxID_ANY, "(Name)",wxDefaultPosition, wxDefaultSize);
+    new_box->Add(name, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    new_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("(r)"), wxDefaultPosition, wxDefaultSize, 0), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    rows = new wxTextCtrl(matrixOp, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(35, -1), 0L,  wxTextValidator(wxFILTER_NUMERIC));
+    new_box->Add(rows, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    new_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("(c)"), wxDefaultPosition, wxDefaultSize, 0), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    cols = new wxTextCtrl(matrixOp, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(35, -1), 0L,  wxTextValidator(wxFILTER_NUMERIC));
+    new_box->Add(cols, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	initButton = new wxButton(matrixOp, INIT_BUTTON, wxT("Go"), wxDefaultPosition, wxSize( 35,-1 ), 0 );
+    new_box->Add(initButton, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxBoxSizer * multiply_box = new wxBoxSizer(wxHORIZONTAL);
+    multiply_box->SetMinSize( wxSize( -1,40 ) );
+    multiply_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("Multiply: ")), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	mult1 = new wxChoice(matrixOp, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    multiply_box->Add(mult1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+    multiply_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("x"), wxDefaultPosition, wxDefaultSize, 0), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    mult2 = new wxChoice(matrixOp, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    multiply_box->Add(mult2, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	go_multiply = new wxButton(matrixOp, wxID_ANY, wxT("Go"), wxDefaultPosition, wxSize( 35,-1 ), 0 );
+    multiply_box->Add(go_multiply, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxBoxSizer * echelon_box = new wxBoxSizer(wxHORIZONTAL);
+    echelon_box->SetMinSize( wxSize( -1,40 ) );
+    echelon_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("Echelon: ")), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    echelon1 = new wxChoice(matrixOp, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    echelon_box->Add(echelon1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	go_echelon = new wxButton(matrixOp, wxID_ANY, wxT("Go"), wxDefaultPosition, wxSize( 35,-1 ), 0 );
+    echelon_box->Add(go_echelon, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxBoxSizer * row_echelon_box = new wxBoxSizer(wxHORIZONTAL);
+    row_echelon_box->SetMinSize( wxSize( -1,40 ) );
+    row_echelon_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("Row Echelon: ")), 0, wxALIGN_CENTER_VERTICAL| wxALL, 5);
+    row_echelon1 = new wxChoice(matrixOp, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    row_echelon_box->Add(row_echelon1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	go_row_echelon = new wxButton(matrixOp, wxID_ANY, wxT("Go"), wxDefaultPosition, wxSize( 35,-1 ), 0 );
+    row_echelon_box->Add(go_row_echelon, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxBoxSizer * inverse_box = new wxBoxSizer(wxHORIZONTAL);
+    inverse_box->SetMinSize( wxSize( -1,40 ) );
+    inverse_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("Inverse: ")), 0, wxALIGN_CENTER_VERTICAL| wxALL, 5);
+    inverse1 = new wxChoice(matrixOp, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    inverse_box->Add(inverse1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	go_inverse = new wxButton(matrixOp, wxID_ANY, wxT("Go"), wxDefaultPosition, wxSize( 35,-1 ), 0 );
+    inverse_box->Add(go_inverse, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxBoxSizer * determinant_box = new wxBoxSizer(wxHORIZONTAL);
+    determinant_box->SetMinSize( wxSize( -1,40 ) );
+    determinant_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("Determinant: ")), 0, wxALIGN_CENTER_VERTICAL| wxALL, 5);
+    determinant1 = new wxChoice(matrixOp, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    determinant_box->Add(determinant1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	go_determinant = new wxButton(matrixOp, wxID_ANY, wxT("Go"), wxDefaultPosition, wxSize( 35,-1 ), 0 );
+    determinant_box->Add(go_determinant, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxBoxSizer * spanning_box = new wxBoxSizer(wxHORIZONTAL);
+    spanning_box->SetMinSize( wxSize( -1,40 ) );
+    spanning_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("Spanning: ")), 0, wxALIGN_CENTER_VERTICAL| wxALL, 5);
+    spanning1 = new wxChoice(matrixOp, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    spanning_box->Add(spanning1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	go_spanning = new wxButton(matrixOp, wxID_ANY, wxT("Go"), wxDefaultPosition, wxSize( 35,-1 ), 0 );
+    spanning_box->Add(go_spanning, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxBoxSizer * linear_independence_box = new wxBoxSizer(wxHORIZONTAL);
+    linear_independence_box->SetMinSize( wxSize( -1,40 ) );
+    linear_independence_box->Add(new wxStaticText(matrixOp, wxID_ANY, wxT("Linear Independence: ")), 0, wxALIGN_CENTER_VERTICAL| wxALL, 5);
+    linear_independence1 = new wxChoice(matrixOp, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    linear_independence_box->Add(linear_independence1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	go_linear_independence = new wxButton(matrixOp, wxID_ANY, wxT("Go"), wxDefaultPosition, wxSize( 35,-1 ), 0 );
+    linear_independence_box->Add(go_linear_independence, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    operations->Add(new_box, 1, wxEXPAND, 5);
+    operations->Add(multiply_box, 1, wxEXPAND, 5);
+    operations->Add(echelon_box, 1, wxEXPAND, 5);
+    operations->Add(row_echelon_box, 1, wxEXPAND, 5);
+    operations->Add(inverse_box, 1, wxEXPAND, 5);
+    operations->Add(determinant_box, 1, wxEXPAND, 5);
+    operations->Add(spanning_box, 1, wxEXPAND, 5);
+    operations->Add(linear_independence_box, 1, wxEXPAND, 5);
+    matrixOp->SetSizer(operations);
+    matrixOp->Layout();
+    operations->Fit(matrixOp);
+    
+    panelSizer->Add(matrixOp, 2, wxEXPAND | wxALL, 5);
+
+    wxBoxSizer * listSizer = new wxBoxSizer(wxVERTICAL);
+    matrixListBox = new wxListBox(matrixListPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	listSizer->Add(matrixListBox, 5, wxEXPAND | wxALL, 5 );
+
+    wxBoxSizer * listButtonsBox = new wxBoxSizer(wxHORIZONTAL);
+	matrixShowButton = new wxButton( matrixListPanel, SHOW_BUTTON, wxT("Show"), wxDefaultPosition, wxDefaultSize, 0 );
+	listButtonsBox->Add( matrixShowButton, 0, wxALL, 5 );
+	matrixDeleteButton = new wxButton( matrixListPanel, wxID_ANY, wxT("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
+	listButtonsBox->Add( matrixDeleteButton, 0, wxALL, 5 );
+
+    listSizer->Add(listButtonsBox, 1, wxALIGN_BOTTOM | wxALL |wxEXPAND, 5);
+
+    matrixListPanel->SetSizer(listSizer);
+    matrixListPanel->Layout();
+    listSizer->Fit(matrixListPanel);
+	panelSizer->Add(matrixListPanel, 1, wxEXPAND | wxALL, 5);
+
+    this->SetSizer(panelSizer);
+    this->Layout();
+    this->Centre( wxBOTH );
+
+    matrixList.setParent(this);
     /*wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     name = new wxTextCtrl(this, wxID_ANY, wxEmptyString);
     rows = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0L,  wxTextValidator(wxFILTER_NUMERIC));
@@ -66,6 +183,13 @@ void MatrixFrame::OnExit(wxCommandEvent& event) {
     Close( true );
 }
 
+void MatrixFrame::createShowFrame(wxCommandEvent& event) {
+    wxString name = matrixListBox->GetString(matrixListBox->GetSelection());
+    Matrix * mat = matrixList.get(name);
+    MatrixShowFrame * frame = new MatrixShowFrame(this, name, mat, wxDefaultPosition, wxDefaultSize);
+    frame->Show();
+}
+
 void MatrixFrame::createEditFrame(wxCommandEvent& event) {
     std::cout << "Hello" << std::endl; 
     wxString input_name = name->GetValue();
@@ -91,7 +215,7 @@ MatrixEditFrame::MatrixEditFrame(MatrixFrame * parent, const wxString& title, co
     }
     confirmButton = new wxButton(this, wxID_ANY, "Create", wxPoint(0, cols * h_size + 30));
     confirmButton->Bind(wxEVT_BUTTON, &MatrixEditFrame::createMatrix, this);
-
+    this->Bind(wxEVT_CLOSE_WINDOW, &MatrixEditFrame::OnClose, this);
 }
 
 void MatrixEditFrame::createMatrix(wxCommandEvent& event) {
@@ -99,15 +223,48 @@ void MatrixEditFrame::createMatrix(wxCommandEvent& event) {
     double value = 0; 
     for (int i = 0; i < mat_rows; i++) {
         for (int j = 0; j < mat_cols; j++) {
-            (inputBoxes[i * 3 + j]->GetValue()).ToDouble(&value);
+            (inputBoxes[i * mat_rows + j]->GetValue()).ToDouble(&value);
             mat->addEntry(i, j, value);
-            inputBoxes[i * 3 + j]->Destroy();
+            inputBoxes[i * mat_rows + j]->Destroy();
             std::cout << "Added entry to matrix: " << value << std::endl; 
         }
     }
-    if (m_parent->mat != NULL) delete m_parent->mat;
-    m_parent->mat = mat; 
+
+    m_parent->matrixList.add(mat_name, mat);
+    this->Close();
+}
+
+void MatrixEditFrame::OnClose(wxCloseEvent &event) {
     m_parent->initButton->Enable(true);
     this->Destroy();
 }
 
+void MatrixManager::add(wxString& str, Matrix * matrix) {
+    matrices.insert({str.ToStdString(), matrix});
+    matrix_names.Add(str);
+    m_parent->matrixListBox->Append(str);
+}
+
+void MatrixManager::setParent(MatrixFrame * parent) {
+    m_parent = parent; 
+}
+
+Matrix * MatrixManager::get(wxString & str) {
+    return matrices.at(str.ToStdString());
+}
+
+MatrixShowFrame::MatrixShowFrame(MatrixFrame * parent, const wxString& title, Matrix * mat, const wxPoint& pos, const wxSize& size) 
+    : wxFrame(parent, wxID_ANY, title, pos, size) {
+
+    wxFlexGridSizer * matrix_grid = new wxFlexGridSizer(mat->m, mat->n, wxDefaultSize);
+    for (int i = 0; i < mat->m; i++) {
+        for (int j = 0; j < mat->n; j++) {
+            wxString entry;
+            entry << mat->getEntry(i,j);
+            matrix_grid->Add(new wxStaticText(this, wxID_ANY, entry), 1, wxALL); 
+        }
+    }
+    this->SetSizer(matrix_grid);
+    this->Centre();
+
+}

@@ -9,12 +9,13 @@ class Matrix {
 private: 
     
     std::vector<std::vector<double>> mat; 
-    int m; //rows 
-    int n; //columns
+    //int m; //rows 
+    //int n; //columns
 
     
 public: 
-    
+    int m; //rows 
+    int n; //columns
     Matrix();
     Matrix(int rows, int cols);
     Matrix(const Matrix &matrix);
