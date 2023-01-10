@@ -11,12 +11,23 @@ class MatrixEditFrame;
 class MatrixFrame; 
 class MatrixManager; 
 class MatrixShowFrame;
+class MatrixSaveFrame; 
 
 class MatrixApp: public wxApp {
 
 public:
     virtual bool OnInit();
+};
 
+class MatrixSaveFrame: public wxFrame {
+public:
+    MatrixFrame * m_parent;
+    Matrix * matrix; 
+    wxTextCtrl * input_name; 
+    bool saved;
+    MatrixSaveFrame(MatrixFrame * parent, const wxString& title, Matrix * mat, const wxPoint& pos, const wxSize& size);
+    void saveMatrix(wxCommandEvent& event);
+    void OnClose(wxCloseEvent &event);
 };
 
 class MatrixEditFrame : public wxFrame {
@@ -50,11 +61,11 @@ public:
 class MatrixManager {
 public: 
     MatrixFrame * m_parent; 
-    wxArrayString matrix_names; 
-    std::unordered_map<std::string, Matrix *> matrices;
+    wxArrayString * matrix_names; 
+    std::unordered_map<std::string, Matrix *> * matrices;
 
     void add(wxString& str, Matrix * mat);
-    void remove(wxString &matrix);
+    void remove(wxString &matrix, int num_pos);
     Matrix * get(wxString &matrix);
     void setParent(MatrixFrame * parent);
 };
@@ -66,6 +77,13 @@ private:
     void OnExit(wxCommandEvent& event);
     void createEditFrame(wxCommandEvent& event);
     void createShowFrame(wxCommandEvent& event);
+    void deleteMatrix(wxCommandEvent & event);
+    void inverseMatrix(wxCommandEvent & event);
+    void echelonMatrix(wxCommandEvent & event);
+    void rowEchelonMatrix(wxCommandEvent & event);
+    void linearIndepedentMatrix(wxCommandEvent & event);
+    void determinantMatrix(wxCommandEvent & event);
+    void OnClose(wxCloseEvent &event);
     wxDECLARE_EVENT_TABLE();
 
 public:
@@ -104,7 +122,7 @@ public:
     wxButton * matrixDeleteButton; 
     MatrixEditFrame * editFrame; 
     Matrix * mat; 
-    MatrixManager matrixList;
+    MatrixManager * matrixList;
     MatrixFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 };
 

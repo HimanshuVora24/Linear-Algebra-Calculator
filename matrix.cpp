@@ -1,6 +1,7 @@
 #include "matrix.h"
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 using std::cout;
 using std::endl; 
 
@@ -85,12 +86,53 @@ void Matrix::changeCol(int col, std::vector<double> vec) {
     }
 }
 
+std::string decimalToFraction(double x) {
+    //std::string str = "";
+    std::ostringstream ostr;
+    if (x < 0){
+        return "-" + decimalToFraction(-x);
+    }
+    double tolerance = 1.0E-6;
+    double h1=1; double h2=0;
+    double k1=0; double k2=1;
+    double b = x;
+    do {
+        double a = floor(b);
+        double aux = h1; h1 = a*h1+h2; h2 = aux;
+        aux = k1; k1 = a*k1+k2; k2 = aux;
+        b = 1/(b-a);
+    } while (abs(x-h1/k1) > x*tolerance);
+    if (k1 == 1) {
+        ostr << x; 
+        //cout << str; 
+    } else {
+        ostr << h1 << "/" << "k1";
+        //str += "/"; 
+        //str += k1; 
+    }
+    return ostr.str(); 
+}
+
 void Matrix::printMatrix() {
+    //int size_mod = 1; 
+    /*int size = 0;
+    std::vector<std::string> vecString;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            std::string str = decimalToFraction(mat[i][j]);
+            if (str.size() > size) size = str.size();
+            vecString.push_back(std::string(str));
+            //cout << str;
+        }
+    }*/
+
     for (int i = 0; i < m; i++) {
         cout << "|";
         for (int j = 0; j < n; j++) {
             if (j != 0) cout << std::setfill(' ') << std::setw(3);
             cout << mat[i][j];
+            //cout << decimalToFraction(mat[i][j]);
+            //cout << vecString[i][j];
         }
         cout << "|" << endl; 
     }

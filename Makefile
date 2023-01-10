@@ -1,8 +1,8 @@
 CXX = g++ 
 CXXFLAGS = -Wall -g 
-CXXFILES = main_gui.cpp matrix.cpp shell.cpp
+CXXFILES = main_gui.cpp matrix.cpp shell.cpp 
 HFILES = matrix.h shell.h
-OFILES = main_gui.o matrix.o shell.o
+OFILES = main_gui.o matrix.o shell.o 
 OBJNAME = main
 LIBS = 
 
